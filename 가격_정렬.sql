@@ -4,4 +4,3 @@ SELECT TYPE
 	       WHEN price  <= 3000000 THEN '상'
 	       ELSE '최상' END AS 가격정렬
 FROM PRODUCT
-
