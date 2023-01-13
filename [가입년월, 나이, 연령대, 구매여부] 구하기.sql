@@ -12,3 +12,15 @@ FROM Customer A
 LEFT 
 OUTER
 JOIN Sales B ON A.mem_no = B.mem_no 
+
+----*연령대 구분 목록(예시)*----
+--C(Child): 4~12세 남성과 여성
+--T(Teenager): 13~19세 남성과 여성
+--M1(Male): 20~34세의 남성
+--M2(Male): 35~49세의 남성
+--M3(Male): 50세 이상의 남성
+--F1(Female): 20~34세의 여성
+--F2(Female): 35~49세의 여성
+--F3(Female): 50세 이상의 여성
+
+--위와 같이 연령대를 구분하되, 서비스에 따라 연령대를 새로운 기준으로 
