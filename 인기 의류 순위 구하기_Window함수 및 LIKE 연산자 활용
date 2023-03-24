@@ -1,0 +1,55 @@
+CREATE TABLE PRODUCT (
+PRODUCT_ID VARCHAR(10),
+CATEGORY VARCHAR(100),
+NAME VARCHAR(100),
+LIKE_COUNT NUMBER    
+);
+
+INSERT INTO PRODUCT VALUES (1,'상의','민소매 티셔츠',500);
+INSERT INTO PRODUCT VALUES (2,'상의','기본 카라티셔츠',500);
+INSERT INTO PRODUCT VALUES (3,'상의','[이병헌 착용]블랙 와이셔츠',3900);
+INSERT INTO PRODUCT VALUES (4,'상의','[이병헌 착용]니트 3색',2504);
+INSERT INTO PRODUCT VALUES (5,'상의','[이병헌 착용]오버핏 회색 니트',4500);
+INSERT INTO PRODUCT VALUES (6,'상의','[뷔 착용]오버핏 NICE 맨투맨',8777);
+INSERT INTO PRODUCT VALUES (7,'상의','[뷔 착용]MA1 항공점퍼 블랙',5800);
+INSERT INTO PRODUCT VALUES (8,'상의','[RM 착용]오버핏 셔츠 레드',5800);
+INSERT INTO PRODUCT VALUES (9,'상의','[정국 착용]기본 로고 문양 니트',9830);
+
+
+--1) 윈도우 함수 사용하여 순위 반환하기
+SELECT  CATEGORY
+      , NAME
+      , RANK() OVER (ORDER BY LIKE_COUNT DESC) AS 동일한순위가나왔을때_동일한수만큼건너뛰고순위계산
+      , DENSE_RANK() OVER (ORDER BY LIKE_COUNT DESC) AS 동일한순위가나왔을때_바로그다음순위반환
+      , ROW_NUMBER() OVER (ORDER BY LIKE_COUNT DESC) AS 고유한순위반환
+  FROM PRODUCT
+
+
+--2)상위 5개 이내 상품 구하기
+SELECT *
+  FROM ( SELECT CATEGORY
+      		  , NAME
+     	      , ROW_NUMBER() OVER (ORDER BY LIKE_COUNT DESC) AS 고유한순위반환
+           FROM PRODUCT
+       ) A
+ WHERE ROWNUM <= 5
+
+
+--3) 모델 착용 상품 내 순위 구하기
+SELECT *
+  FROM ( SELECT CATEGORY
+      		  , NAME
+     	      , ROW_NUMBER() OVER (ORDER BY LIKE_COUNT DESC) AS 고유한순위반환
+           FROM PRODUCT
+          WHERE NAME LIKE '%착용%'
+       ) A
+
+
+--4) 모델 착용 각각 카운트하기 (이름이 가장 많이 등장한 모델 구하기)
+SELECT COUNT(*)
+  FROM ( SELECT CATEGORY
+      		  , NAME
+     	      , ROW_NUMBER() OVER (ORDER BY LIKE_COUNT DESC) AS 고유한순위반환
+           FROM PRODUCT
+          WHERE NAME LIKE '%이병헌%'
+       ) A
