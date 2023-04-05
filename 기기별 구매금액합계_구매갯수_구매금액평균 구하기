@@ -1,0 +1,34 @@
+ CREATE TABLE customer(
+device VARCHAR(10),
+amount int
+);
+
+INSERT INTO customer VALUES ('mobile',25000);
+INSERT INTO customer VALUES ('mobile',36500);
+INSERT INTO customer VALUES ('mobile',59000);
+INSERT INTO customer VALUES ('mobile',34560);
+INSERT INTO customer VALUES ('web',89000);
+INSERT INTO customer VALUES ('web',125000);
+INSERT INTO customer VALUES ('web',79000);
+INSERT INTO customer VALUES ('none',23000);
+
+
+--1) 기기별 구매 금액 합계
+select device, sum(amount) as 구매금액합계
+  from customer
+ group by device
+ order by 2 desc
+
+--2)기기별 구매 갯수
+select device, count(*) as 구매갯수
+  from customer
+  group by device
+  order by 2 desc
+
+--3)기기별 구매 금액 평균
+select device, round(avg(amount),1) as 구매금액평균
+  from customer
+  group by device
+  order by 2 desc
+  
+  
