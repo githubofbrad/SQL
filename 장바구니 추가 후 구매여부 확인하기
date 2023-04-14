@@ -1,0 +1,92 @@
+CREATE TABLE action_log(
+    dt       varchar(255)
+  , session1  varchar(255)
+  , user_id  varchar(255)
+  , action1   varchar(255)
+  , products varchar(255)
+  , stamp    varchar(255)
+);
+
+INSERT INTO action_log VALUES ('2016-11-03', 'A', 'U001', 'add_cart', '1'    , '2016-11-03 18:00:00');
+INSERT INTO action_log VALUES ('2016-11-03', 'A', 'U001', 'add_cart', '2'    , '2016-11-03 18:01:00');
+INSERT INTO action_log VALUES ('2016-11-03', 'A', 'U001', 'add_cart', '3'    , '2016-11-03 18:02:00');
+INSERT INTO action_log VALUES ('2016-11-03', 'A', 'U001', 'purchase', '1,2,3', '2016-11-03 18:10:00');
+INSERT INTO action_log VALUES ('2016-11-03', 'B', 'U002', 'add_cart', '1'    , '2016-11-03 19:00:00');
+INSERT INTO action_log VALUES ('2016-11-03', 'B', 'U002', 'purchase', '1'    , '2016-11-03 20:00:00');
+INSERT INTO action_log VALUES ('2016-11-03', 'B', 'U002', 'add_cart', '2'    , '2016-11-03 20:30:00');
+INSERT INTO action_log VALUES ('2016-11-04', 'C', 'U001', 'add_cart', '4'    , '2016-11-04 12:00:00');
+INSERT INTO action_log VALUES ('2016-11-04', 'C', 'U001', 'add_cart', '5'    , '2016-11-04 12:00:00');
+INSERT INTO action_log VALUES ('2016-11-04', 'C', 'U001', 'add_cart', '6'    , '2016-11-04 12:00:00');
+INSERT INTO action_log VALUES ('2016-11-04', 'D', 'U002', 'purchase', '2'    , '2016-11-04 13:00:00');
+INSERT INTO action_log VALUES ('2016-11-04', 'D', 'U001', 'purchase', '5,6'  , '2016-11-04 15:00:00');
+
+
+--1)상품들이 카트에 추가된 시각 및 구매된 시각 산출
+with A_action_log  as (select dt
+        				          	, user_id
+                            , action1
+                            , REGEXP_SUBSTR(products,'[^,]+',1,1) as product_id
+                            , stamp
+                        from action_log
+                      )     
+, action_time_stats as  ( select user_id
+    						               , product_id
+    						               , min(case action1 when 'add_cart' then dt end) as dt
+    						               , min(case action1 when 'add_cart' then stamp end) as add_cart_time
+    					 	               , min(case action1 when 'purchase' then stamp end) as purchase_time
+    					             	  , round((to_date(min(case action1 when 'purchase' then stamp end),'yyyy-mm-dd hh24:mi:ss')-to_date(min(case action1 when 'add_cart' then stamp end),'yyyy-mm-dd hh24:mi:ss')) * 24 * 60 * 60,2) as lead_time
+    					             from A_action_log
+                          group by user_id, product_id
+    				           	)
+
+select user_id
+     , product_id
+     , add_cart_time
+     , purchase_time
+     , lead_time
+  from action_time_stats
+ order by 1,2
+ 
+*문자 나누기 정규식: REGEXP_SUBSTR(대상문자, 패턴, 시작위치, 매칭순번)
+
+
+
+ --2)카트 추가 후 n시간 이내에 구매된 상품 수와 구매율 집계
+ with A_action_log  as (select dt
+        			           	 	, user_id
+    					         	    , action1
+    						            , REGEXP_SUBSTR(products,'[^,]+',1,1) as product_id
+    						            , stamp
+        				         from action_log
+                       )     
+, action_time_stats as  ( select user_id
+    						               , product_id
+    						               , min(case action1 when 'add_cart' then dt end) as dt
+    						               , min(case action1 when 'add_cart' then stamp end) as add_cart_time
+    					 	               , min(case action1 when 'purchase' then stamp end) as purchase_time
+    						               , round((to_date(min(case action1 when 'purchase' then stamp end),'yyyy-mm-dd hh24:mi:ss')-to_date(min(case action1 when 'add_cart' then stamp end),'yyyy-mm-dd hh24:mi:ss')) * 24 * 60 * 60,2) as lead_time
+    					             from A_action_log
+                          group by user_id, product_id
+    					          )
+
+, purchase_laed_time_flag as ( select user_id
+                                     , product_id
+                                     , dt
+                                     , case when lead_time <= 1 * 60 * 60 then 1 else 0 end as purchase_1hour
+                                     , case when lead_time <= 6 * 60 * 60 then 1 else 0 end as purchase_6hours
+                                     , case when lead_time <= 24 * 60 * 60 then 1 else 0 end as purchase_24hours
+                                     , case when lead_time <= 48 * 60 * 60 then 1 else 0 end as purchase_48hours
+                                  from action_time_stats
+						                 	)
+ select dt
+      , count(*) as add_cart
+      , sum(purchase_1hour) as purchase_1hour
+      , round(avg(purchase_1hour),1) * 100 ||'%' as purchase_1hour_rate
+      , sum(purchase_6hours) as purchase_6hours
+      , round(avg(purchase_6hours),1) * 100 ||'%' as purchase_6hours_rate
+      , sum(purchase_24hours) as purchase_24hours
+      , round(avg(purchase_24hours),1) * 100 ||'%' as purchase_24hours_rate
+      , sum(purchase_48hours) as purchase_48hours
+      , round(avg(purchase_48hours),1) * 100 ||'%' as purchase_48hours_rate
+   from purchase_laed_time_flag
+ group by dt
