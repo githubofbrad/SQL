@@ -1,0 +1,90 @@
+CREATE TABLE activity_log( 
+    stamp1        varchar(255) 
+  , session1      varchar(255) 
+  , action1       varchar(255) 
+  , option1      varchar(255) 
+  , path1         varchar(255) 
+  , search_type  varchar(255) 
+)
+
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '989004ea', 'view', 'search', '/search_list/' , 'Area-L-with-Job' );
+INSERT INTO activity_log VALUES ('2017-01-09 12:19:27', '989004ea', 'view', 'page'  , '/search_input/', ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:20:03', '989004ea', 'view', 'search', '/search_list/' , 'Pref'            );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '47db0370', 'view', 'search', '/search_list/' , 'Area-S'          );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '1cf7678e', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:19:04', '1cf7678e', 'view', 'page'  , '/'             , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '5eb2e107', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', 'fe05e1d8', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '87b5725f', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:20:22', '87b5725f', 'view', 'search', '/search_list/' , 'Line'            );
+INSERT INTO activity_log VALUES ('2017-01-09 12:20:46', '87b5725f', 'view', 'page'  , '/'             , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:21:26', '87b5725f', 'view', 'page'  , '/search_input/', ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:22:51', '87b5725f', 'view', 'search', '/search_list/' , 'Station-with-Job');
+INSERT INTO activity_log VALUES ('2017-01-09 12:24:13', '87b5725f', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:25:25', '87b5725f', 'view', 'page'  , '/'             , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', 'eee2bb21', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '5d5b0997', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '111f2996', 'view', 'search', '/search_list/' , 'Pref'            );
+INSERT INTO activity_log VALUES ('2017-01-09 12:19:11', '111f2996', 'view', 'page'  , '/search_input/', ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:20:10', '111f2996', 'view', 'page'  , '/'             , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:21:14', '111f2996', 'view', 'page'  , '/search_input/', ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '3efe001c', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '9afaf87c', 'view', 'search', '/search_list/' , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:20:18', '9afaf87c', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:21:39', '9afaf87c', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:22:52', '9afaf87c', 'view', 'search', '/search_list/' , 'Line-with-Job'   );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', 'd45ec190', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '0fe39581', 'view', 'search', '/search_list/' , 'Area-S'          );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '36dd0df7', 'view', 'search', '/search_list/' , 'Pref-with-Job'   );
+INSERT INTO activity_log VALUES ('2017-01-09 12:19:49', '36dd0df7', 'view', 'detail', '/detail/'      , ''                );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', '8cc03a54', 'view', 'search', '/search_list/' , 'Area-L'          );
+INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', 'cabf98e8', 'view', 'page'  , '/search_input/', ''                );
+
+
+
+--(1) 각 세션의 입구 페이지와 출구 페이지 경로 추출하기
+WITH activity_log_with_landing_exit AS ( 
+    									select session1,  
+    											  path1,  
+                                                 stamp1,  
+                                               first_value(path1) over(partition by session1 
+                                                                       order by stamp1 
+    																   rows between unbounded preceding and unbounded following) as landing_gate, 
+    									       last_value(path1) over(partition by session1 
+    																	order by stamp1 
+    																    rows between unbounded preceding and unbounded following) as exit_gate 
+    									  from activity_log 
+    									) 
+ 
+select * 
+  from activity_log_with_landing_exit
+
+
+
+--(2) 각 세션의 입구 페이지와 출구 페이지를 기반으로 방문 횟수 출력하기
+WITH activity_log_with_landing_exit AS ( 
+    									select session1,  
+    											  path1,  
+                                                 stamp1,  
+                                               first_value(path1) over(partition by session1 
+                                                                       order by stamp1 
+    																   rows between unbounded preceding and unbounded following) as landing_gate, 
+    									       last_value(path1) over(partition by session1 
+    																	order by stamp1 
+    																    rows between unbounded preceding and unbounded following) as exit_gate 
+    									  from activity_log 
+    									) 
+	, landing_count as (  
+    					select landing_gate as path 
+    						 , count(distinct session1) as count 
+    					  from activity_log_with_landing_exit 
+    					  group by landing_gate 
+    					) 
+	, exit_count as ( 
+     		          select exit_gate as path 
+    					    , count(distinct session1) as count 
+    					from activity_log_with_landing_exit 
+    				   group by exit_gate 
+    				) 
+    select *
+      from landing_count
