@@ -44,17 +44,17 @@ INSERT INTO activity_log VALUES ('2017-01-09 12:18:43', 'cabf98e8', 'view', 'pag
 
 --(1) 각 세션의 입구 페이지와 출구 페이지 경로 추출하기
 WITH activity_log_with_landing_exit AS ( 
-    									select session1,  
-    											  path1,  
+    					select session1,  
+    						  path1,  
                                                  stamp1,  
                                                first_value(path1) over(partition by session1 
-                                                                       order by stamp1 
-    																   rows between unbounded preceding and unbounded following) as landing_gate, 
-    									       last_value(path1) over(partition by session1 
-    																	order by stamp1 
-    																    rows between unbounded preceding and unbounded following) as exit_gate 
-    									  from activity_log 
-    									) 
+                                                                           order by stamp1 
+    								       rows between unbounded preceding and unbounded following) as landing_gate, 
+    		                               last_value(path1) over(partition by session1 
+    									   order by stamp1 
+    								       rows between unbounded preceding and unbounded following) as exit_gate 
+    					  from activity_log 
+    					) 
  
 select * 
   from activity_log_with_landing_exit
@@ -63,28 +63,28 @@ select *
 
 --(2) 각 세션의 입구 페이지와 출구 페이지를 기반으로 방문 횟수 출력하기
 WITH activity_log_with_landing_exit AS ( 
-    									select session1,  
-    											  path1,  
-                                                 stamp1,  
+    					select session1,  
+    					       path1,  
+                                               stamp1,  
                                                first_value(path1) over(partition by session1 
-                                                                       order by stamp1 
-    																   rows between unbounded preceding and unbounded following) as landing_gate, 
-    									       last_value(path1) over(partition by session1 
-    																	order by stamp1 
-    																    rows between unbounded preceding and unbounded following) as exit_gate 
-    									  from activity_log 
-    									) 
-	, landing_count as (  
-    					select landing_gate as path 
-    						 , count(distinct session1) as count 
-    					  from activity_log_with_landing_exit 
-    					  group by landing_gate 
+                                                                           order by stamp1 
+    								       rows between unbounded preceding and unbounded following) as landing_gate, 
+    					       last_value(path1) over(partition by session1 
+    					                                  order by stamp1 
+    						                       rows between unbounded preceding and unbounded following) as exit_gate 
+    					   from activity_log 
     					) 
+	, landing_count as (  
+    			    select landing_gate as path 
+    				 , count(distinct session1) as count 
+    			      from activity_log_with_landing_exit 
+    			      group by landing_gate 
+    			   ) 
 	, exit_count as ( 
      		          select exit_gate as path 
-    					    , count(distinct session1) as count 
-    					from activity_log_with_landing_exit 
-    				   group by exit_gate 
-    				) 
+    			       , count(distinct session1) as count 
+    			    from activity_log_with_landing_exit 
+    		            group by exit_gate 
+    			) 
     select *
       from landing_count
