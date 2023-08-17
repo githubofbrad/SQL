@@ -1,0 +1,21 @@
+--WITH절 활용하여 세선별 COUNT 구하기
+with SESSION_COUNT as (
+                      select SESSION1,
+                  	      	 COUNT(*) as S_COUNT
+                       from  action_log                 
+                       group by SESSION1
+
+                       )
+--두번째 WITH절 활용하여 세션 카운트 별 순위 및 세션 카운트 별 비율 구하기
+     , SESSION_COUNT2 as(
+                    	  select session1                    
+                    	  	 	  , s_count                    
+                    	  		  , rank() over (order by s_count desc) as rank                   
+                    		  	  , percent_rank() over (order by s_count desc) as p_rank                   
+                    	   from session_count
+	                     )
+
+--두 번째 WITH절 불러와서 세션 카운트 비율(p_rank)이 0.3 미만인 세션 구하기	    
+      select *
+        from session_count2
+       where p_rank < 0.3
