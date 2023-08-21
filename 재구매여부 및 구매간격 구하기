@@ -15,7 +15,7 @@ INSERT INTO PRODUCT VALUES (56890,'2023-02-01','3916');
 
 
 
-
+--#1 FROM절 서브쿼리 활용
 SELECT A.*
        , CASE WHEN TO_DATE(최초구매일자,'YYYY-MM-DD')+1 <= TO_DATE(최근구매일자, 'YYYY-MM-DD') THEN 'Y' ELSE 'N' END AS 재구매여부
        , TO_DATE(최근구매일자,'YYYY-MM-DD') - TO_DATE(최초구매일자,'YYYY-MM-DD') AS 구매간격
@@ -26,3 +26,22 @@ SELECT A.*
                COUNT(ORDER_NO) AS 구매횟수
   		    FROM SALES
  		      GROUP BY MEM_NO ) A
+
+
+--#2 with절 활용
+with date_table as(
+		     select mem_no 	
+			    , min(order_date) as 최초구매일자
+		   	    , max(order_date) as 최근구매일자
+		  	    , count(order_no) as 구매횟수
+	      	       from sales_table
+		 	group by mem_no 
+	           )
+
+select mem_no
+      , case when to_Date(최근구매일자, 'YYYY-MM-DD') + 1 <= to_date(최근구매일자, 'YYYY-MM-DD') then 'Y' else 'N' end as 재구매여부
+      , to_date(최근구매일자, 'YYYY-MM-DD') - to_date(최초구매일자, 'YYYY-MM-DD') as 구매간격
+      , ( to_date(최근구매일자, 'YYYY-MM-DD') - to_date(최초구매일자, 'YYYY-MM-DD') ) / (구매횟수 - 1) as 구매주기 
+  from date_table
+
+
