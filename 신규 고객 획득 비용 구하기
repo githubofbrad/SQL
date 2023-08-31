@@ -1,0 +1,34 @@
+ -- 고객 테이블 생성
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    signup_date VARCHAR(100)
+);
+
+INSERT INTO customers (customer_id, signup_date) VALUES (1, '2023-01-15');
+INSERT INTO customers (customer_id, signup_date) VALUES (2, '2023-02-10');
+INSERT INTO customers (customer_id, signup_date) VALUES (3, '2023-02-20');
+INSERT INTO customers (customer_id, signup_date) VALUES (4, '2023-03-05');
+INSERT INTO customers (customer_id, signup_date) VALUES (5, '2023-03-15');
+
+-- 마케팅 비용 테이블 생성
+CREATE TABLE marketing_costs (
+    date VARCHAR PRIMARY KEY,
+    cost DECIMAL(10, 2)
+);
+
+INSERT INTO marketing_costs (date, cost) VALUES ('2023-01-01', 500.00);
+INSERT INTO marketing_costs (date, cost) VALUES ('2023-02-01', 800.00);
+INSERT INTO marketing_costs (date, cost) VALUES ('2023-03-01', 1200.00);
+
+
+
+   
+--3월 신규 고객 획득 비용 구하기   
+ SELECT SUBSTRING(a.signup_date,1,4) as signup_year,
+ 	   SUBSTRING(a.signup_date,6,2) as signup_month,
+ 	   sum(b.cost) / count(a.customer_id) as cost_per_new_customer
+   FROM customers A
+   cross join marketing_costs B
+   where a.signup_date >= '2023-02-28'
+   group by SUBSTRING(a.signup_date,1,4)  , SUBSTRING(a.signup_date,6,2) 
+   
