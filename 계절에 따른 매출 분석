@@ -1,0 +1,28 @@
+--테이블 생성
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    order_date VARCHAR,
+    order_amount DECIMAL(10, 2)
+);
+
+INSERT INTO orders VALUES (1, '2023-03-15', 500.00);
+INSERT INTO orders VALUES (2, '2023-04-20', 750.00);
+INSERT INTO orders VALUES (3, '2023-06-10', 1200.00);
+INSERT INTO orders VALUES (4, '2023-07-05', 800.00);
+INSERT INTO orders VALUES (5, '2023-09-25', 950.00);
+INSERT INTO orders VALUES (6, '2023-10-08', 1100.00);
+INSERT INTO orders VALUES (7, '2023-11-12', 600.00);
+INSERT INTO orders VALUES (8, '2023-12-01', 850.00);
+INSERT INTO orders VALUES (9, '2023-01-18', 700.00);
+INSERT INTO orders VALUES (10, '2023-02-22', 900.00);
+
+
+--쿼리 작성
+SELECT CASE WHEN CAST(SUBSTRING(order_date,6,2) AS INT) BETWEEN 03 AND 05 THEN '봄'
+		  WHEN CAST(SUBSTRING(order_date,6,2) AS INT) BETWEEN 06 AND 08 THEN '여름'
+		  WHEN CAST(SUBSTRING(order_date,6,2) AS INT) BETWEEN 09 AND 11 THEN '가을'
+		  ELSE '겨울' END AS 계절
+		  , SUM(order_amount) AS 매출
+  FROM orders 
+  GROUP BY 계절
+  ORDER BY 계절 DESC
