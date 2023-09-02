@@ -23,7 +23,7 @@ INSERT INTO market_data VALUES (10, 10231, '2023-11-15', 580.00);
 --반복구매고객 카운트
 SELECT COUNT('O') AS 반복구매고객수
   from ( SELECT ORIGIN_NUM,
-  			 CASE WHEN COUNT(ORIGIN_NUM) > 1 THEN 'O' END AS '카운트'	
+  			 CASE WHEN COUNT(ORIGIN_NUM) > 1 THEN 'O' END AS 카운트
            FROM market_data
           group by origin_num
         ) A
@@ -33,7 +33,7 @@ SELECT COUNT('O') AS 반복구매고객수
    
 --반복구매고객 금액 구하기
 SELECT origin_num,
-	  case when count(origin_num) > 1 then sum(order_amount) end as '반복구매금액'
+	  case when count(origin_num) > 1 then sum(order_amount) end as 반복구매금액
   from market_data
   group by origin_num
   order by 반복구매금액 DESC 
@@ -43,7 +43,7 @@ SELECT origin_num,
 --반복구매고객 금액 합계 구하기
 SELECT sum(A.금액) AS 반복구매금액합계
   from ( SELECT ORIGIN_NUM,
-  			 CASE WHEN COUNT(ORIGIN_NUM) > 1 THEN 'O' END AS '카운트',
+  			 CASE WHEN COUNT(ORIGIN_NUM) > 1 THEN 'O' END AS 카운트,
   			 SUM(order_amount) as 금액
            FROM market_data
           group by origin_num
