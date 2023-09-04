@@ -1,0 +1,26 @@
+--테이블 생성
+CREATE TABLE ClothingSales (
+    sale_id serial PRIMARY KEY,
+    color VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL
+);
+
+-- 의류 정보 추가
+INSERT INTO ClothingSales VALUES (1, 'BLUE', 100);
+INSERT INTO ClothingSales VALUES (2, 'RED', 80);
+INSERT INTO ClothingSales VALUES (3, 'YELLOW', 120);
+INSERT INTO ClothingSales VALUES (4, 'GREEN', 90);
+INSERT INTO ClothingSales VALUES (5, 'RED', 60);
+INSERT INTO ClothingSales VALUES (6, 'BLUE', 75);
+INSERT INTO ClothingSales VALUES (7, 'GREEN', 110);
+INSERT INTO ClothingSales VALUES (8, 'YELLO', 85);
+INSERT INTO ClothingSales VALUES (9, 'YELLO', 85);
+INSERT INTO ClothingSales VALUES (10, 'YELLO', 85);
+
+
+
+SELECT COLOR, SUM(QUANTITY)
+  FROM ClothingSales   
+ GROUP BY COLOR
+ ORDER BY QUANTITY DESC 
+ LIMIT 1
