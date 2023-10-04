@@ -1,0 +1,31 @@
+=====SQL 집계 함수(ROLLUP, CUBE, GROUPING SETS)=====
+
+--1)GROUP BY절
+SELECT 광고유형
+	   , SUM(클릭수) AS 클릭합계
+FROM 광고데이터
+GROUP BY 광고유형
+
+
+--2)ROLLUP: 첫 번째 인자에 대한 그룹 합계 및 전체합계
+SELECT 광고유형
+  	 , 날짜
+	   , SUM(클릭수) AS 클릭합계
+FROM 광고데이터
+GROUP BY ROLLUP(광고유형, 날짜)
+
+
+--3)CUBE: 모든 인자에 대한 그룹 합계 및 전체합계
+SELECT 광고유형
+  	 , 날짜
+  	 , SUM(클릭수) AS 클릭합계
+FROM 광고데이터
+GROUP BY CUBE(광고유형, 날짜)
+
+
+--4)GROUPING SETS: 각 인자 그룹 별 합계
+SELECT 광고유형
+  	 , 날짜
+	   , SUM(클릭수) AS 클릭합계
+FROM 광고데이터
+GROUP BY GROUPING SETS(광고유형, 날짜)
