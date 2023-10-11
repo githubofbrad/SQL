@@ -1,0 +1,38 @@
+--데이터 확인
+SELECT *
+  FROM Electric_Vehicle_Population_Data
+
+
+--null 존재여부 확인
+select State 
+  from Electric_Vehicle_Population_Data
+  where state is null
+
+select make 
+  from Electric_Vehicle_Population_Data
+  where make is null
+  
+  
+SELECT Model
+  from Electric_Vehicle_Population_Data
+  where model is null
+  
+ 
+SELECT state, make, model 
+  from Electric_Vehicle_Population_Data
+ where state is null or make is null or model is null
+ 
+ 
+ 
+ --state별 electric_vehicle 판매량 구하기
+ SELECT state, count(model) as electric_vehicle_count
+   from Electric_Vehicle_Population_Data
+ group by state
+ 
+ 
+ --electric_vehicle 판매량 상위 6개 maker 구하기
+SELECT make, count(model) as electric_vehicle_count
+  FROM Electric_Vehicle_Population_Data 
+  group by make
+  order by 2 DESC
+  limit 6
